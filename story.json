@@ -42,7 +42,7 @@
       "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghosts of warriors without faces duel. One turns and stares at you.",
       "choices": [
         { "text": "Run toward Diwan-i-Aam", "next_step": 7 },
-        { "text": "Try to speak to the warrior", "death": "The warrior ghost slits your throat with his sword." }
+        { "text": "Try to speak with gestures with the warrior", "death": "The warrior ghost slits your throat with his sword." }
       ]
     },
     {
@@ -82,7 +82,7 @@
       "text": "The inscription you read shakes the palace compound like an earthquake. A chant echoes from afar.",
       "choices": [
         { "text": "Keep running", "next_step": 12 },
-        { "text": "Wait for the shaking stop", "death": "Shadows jump on you above and break your neck. You die a painful death." }
+        { "text": "Wait for the shaking to stop", "death": "Shadows jump on you above and break your neck. You die a painful death." }
       ]
     },
     {
