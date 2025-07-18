@@ -74,14 +74,22 @@
           if (choice.next_step) {
             showStep(choice.next_step);
           } else {
-            document.getElementById("story").innerText = choice.death || "You have died.";
-            setTimeout(() => {
-              showStep(4); // Restart at step 4
-            }, 2500); // Wait 2.5s before returning
+            showDeath(choice.death || "You have died.");
           }
         };
         choicesDiv.appendChild(button);
       });
+    }
+
+    function showDeath(deathMessage) {
+      document.getElementById("story").innerText = deathMessage;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+
+      const restartButton = document.createElement("button");
+      restartButton.innerText = "Restart";
+      restartButton.onclick = () => showStep(4);
+      choicesDiv.appendChild(restartButton);
     }
   </script>
 </body>
