@@ -49,13 +49,13 @@
       "id": 7,
       "text": "You enter Diwan-i-Aam. The throne is empty, but footsteps surround you.",
       "choices": [
-        { "text": "Kneel and pretend to be a servant", "death": "You're trampled by ghost nobles and your thorat is slit opened" },
+        { "text": "Kneel and pretend to be a servant", "death": "You're trampled by ghost nobles and your throat is slit opened" },
         { "text": "Crawl behind the pillar and hide", "next_step": 8 }
       ]
     },
     {
       "id": 8,
-      "text": "The ghost of king's bodyguard sees you from the behind throne. 'Are you looking for help,' he says.",
+      "text": "The ghost of king's bodyguard sees you from behind the throne. 'Are you looking for help,' he says.",
       "choices": [
         { "text": "Run through the open corridor", "next_step": 9 },
         { "text": "Run to him for help", "death": "Ghosts jump from the ceiling and hang you with an invisible rope." }
@@ -71,7 +71,7 @@
     },
     {
       "id": 10,
-      "text": "Inside the vessel, you find the King's lighter. You flick it on. An inscription on the vessel reads: Above the moon, beyond the fire — the mantra lies on Chandra’s spire.Speak it to awaken the sleeping gods.",
+      "text": "Inside the vessel, you find the King's lighter. You flick it on. An inscription on the vessel reads: Above the moon, beyond the fire — the mantra lies on Chandra’s spire. Speak it to awaken the sleeping gods.",
       "choices": [
         { "text": "Stay hidden in the vessel", "death": "The ghosts run you down and attack you with maces and knives. You bleed to death." },
         { "text": "Run towards Chandra Mahal", "next_step": 11 }
@@ -121,8 +121,8 @@
       "id": 16,
       "text": "The shattered mirror makes way for you into The Chamber of Whispers. You hear whispers offering you advise and help.",
       "choices": [
-        { "text": "Chant 'Stay quite for some time'", "next_step": 17 },
-        { "text": "Ask for help", "death": "They're whispers of the cursed souls of daasis who drag your body out and crush your skull with stones " }
+        { "text": "Chant 'Stay quiet for some time'", "next_step": 17 },
+        { "text": "Ask for help", "death": "They are the whispers of cursed daasis who drag your body out and crush your skull with stones " }
       ]
     },
     {
@@ -138,7 +138,7 @@
       "text": "You use the key on a locked room. Inside, you see a floating conch.",
       "choices": [
         { "text": "Blow the conch", "next_step": 19 },
-        { "text": "Smash it", "death": "Your ears explode from a million screams. You suffer a heart attack and die" }
+        { "text": "Smash it", "death": "Your ears explode from a million screams. You suffer a heart attack and die." }
       ]
     },
     {
@@ -154,7 +154,7 @@
       "text": "The walls are painted with war scenes. The eyes of painted soldiers move.",
       "choices": [
         { "text": "Bow and walk humbly", "next_step": 21 },
-        { "text": "Ask the soldiers the way to Chandra Mahal", "death": "The soldiers come out of the painting and cut your throat of with their swords. You're dead." }
+        { "text": "Ask the soldiers the way to Chandra Mahal", "death": "The soldiers come out of the painting and cut your throat off with their swords. You're dead." }
       ]
     },
     {
@@ -199,7 +199,7 @@
     },
     {
       "id": 26,
-      "text": "A door opend but the second one blocks the rooftop. It requires a sacrifice.",
+      "text": "A door opens, but the second one blocks the rooftop. It requires a sacrifice.",
       "choices": [
         { "text": "Offer a drop of your blood", "next_step": 27 },
         { "text": "Offer the lighter", "death": "It's rejected and you're thrown down the stairs. You die" }
@@ -226,7 +226,7 @@
       "text": "As you chant the mantra, you rise into the sky. The vortex returns. Faces of the cursed reach for you.",
       "choices": [
         { "text": "Fold hands and offer them peace", "next_step": 30 },
-        { "text": "Chant the Mantra loudly at them", "death": "They reach for your soul and pull it out into eternal torment. You drop dead under the sky." }
+        { "text": "Chant the Mantra loudly at them", "death": "They reach for your soul and pull it out, dragging you into eternal torment. You collapse beneath the sky." }
       ]
     },
     {
