@@ -7,8 +7,8 @@
   <style>
     body {
       background-color: black;
-      color: #ffcc00;
-      font-family: 'Georgia', serif;
+      color: white;
+      font-family: sans-serif;
       padding: 2rem;
       max-width: 600px;
       margin: auto;
@@ -21,9 +21,9 @@
       margin-top: 2rem;
     }
     button {
-      background-color: #222;
-      color: #ffcc00;
-      border: 1px solid #ffcc00;
+      background-color: black;
+      color: white;
+      border: 1px solid white;
       padding: 1rem;
       margin: 0.5rem 0;
       width: 100%;
@@ -31,7 +31,7 @@
       cursor: pointer;
     }
     button:hover {
-      background-color: #333;
+      background-color: #222;
     }
   </style>
 </head>
@@ -75,7 +75,9 @@
             showStep(choice.next_step);
           } else {
             document.getElementById("story").innerText = choice.death || "You have died.";
-            choicesDiv.innerHTML = '<button onclick="location.reload()">Restart</button>';
+            setTimeout(() => {
+              showStep(4); // Restart at step 4
+            }, 2500); // Wait 2.5s before returning
           }
         };
         choicesDiv.appendChild(button);
