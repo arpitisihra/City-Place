@@ -54,7 +54,7 @@
         {"text": "Move forward and take care of the child", "death": "The child turns into a beast and bites your neck off. You die a painful death."}
       ]},
   
-      {"id": 14, "text": "You've reached Pritam Chowk and see four season-painted doors. All slam shut, you hear a voice "You can only choose door", "choices": [
+      {"id": 14, "text": "You've reached Pritam Chowk and see four season-painted doors. All slam shut, you hear a voice - You can only choose one door", "choices": [
         {"text": "Choose the blue door", "next_step": 15},
         {"text": "Choose the red door", "death": "You enter the door and fall into a fire pit and die."}
       ]},
