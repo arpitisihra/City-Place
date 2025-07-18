@@ -31,7 +31,7 @@
     },
     {
       "id": 5,
-      "text": "You walk toward the building. No one’s there but you hear whispers in Marwari.",
+      "text": "You walk towards the building. No one’s there but you hear whispers in Marwari.",
       "choices": [
         { "text": "Speak back to the voices", "death": "You mispronounce something in Marwari and are struck by a flying mace. You die on the spot." },
         { "text": "Step back slowly and cross to Sileh Khana", "next_step": 6 }
@@ -41,7 +41,7 @@
       "id": 6,
       "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghosts of warriors without faces duel. One turns and stares at you.",
       "choices": [
-        { "text": "Run toward Diwan-i-Aam", "next_step": 7 },
+        { "text": "Run towards Diwan-i-Aam", "next_step": 7 },
         { "text": "Try to speak with gestures with the warrior", "death": "The warrior ghost slits your throat with his sword." }
       ]
     },
