@@ -39,7 +39,7 @@
     },
     {
       "id": 6,
-      "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghosts of warriors without feel duel. One turns and stares at you.",
+      "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghosts of warriors without faces duel. One turns and stares at you.",
       "choices": [
         { "text": "Run toward Diwan-i-Aam", "next_step": 7 },
         { "text": "Try to speak to the warrior", "death": "The warrior ghost slits your throat with his sword." }
