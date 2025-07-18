@@ -1,22 +1,22 @@
 {
     "steps": [
-      {"id": 1, "text": "You enter a forgotten library in the old city. A strange force pulls you toward a shelf. A black-cloth-wrapped book lies pulsing softly in the corner.", "choices": [{"text": "Proceed", "next_step": 2}]},
+      {"id": 1, "text": "You enter a forgotten library in the old city. A strange force pulls you toward a shelf. A black-cloth-wrapped book lies pulsing shining in the corner.", "choices": [{"text": "Proceed", "next_step": 2}]},
       {"id": 2, "text": "You unwrap the book. It’s titled 'The Cursed City Palace of Jaipur'. The pages are blank. You try to close it, but it flips open on its own.", "choices": [{"text": "Proceed", "next_step": 3}]},
       {"id": 3, "text": "The page reads: 'You wanted the cursed City Palace. I’ll take you there.' Your body rises. Wind howls. A vortex forms — you’re sucked in.", "choices": [{"text": "Proceed", "next_step": 4}]},
   
-      {"id": 4, "text": "You land at Mubarak Mahal under a moonlit sky. The palace is silent. You feel eyes watching.", "choices": [
-        {"text": "Investigate the building", "next_step": 5},
-        {"text": "Walk into the shadows behind you", "death": "Death — dragged into the darkness by spirits of old pehredaars."}
+      {"id": 4, "text": "You find yourself at Mubarak Mahal under a moonlit sky. The palace is empty and silent. You feel eyes watching.", "choices": [
+        {"text": "Move towards the building", "next_step": 5},
+        {"text": "Walk out of the gate behind you", "death": "You're dragged into the darkness by spirits of old pehredaars and killed."}
       ]},
   
-      {"id": 5, "text": "You walk toward the Crafts Demonstration Area. Tools clang… but no one’s there. You hear whispers in Marwari.", "choices": [
-        {"text": "Whisper back to the voices", "death": "Death — you mispronounce something in Marwari and are struck by a flying mace."},
+      {"id": 5, "text": "You walk toward the building. No one’s there but you hear whispers in Marwari.", "choices": [
+        {"text": "Speak back to the voices", "death": "You mispronounce something in Marwari and are struck by a flying mace. You die on the spot."},
         {"text": "Step back slowly and cross to Sileh Khana", "next_step": 6}
       ]},
   
-      {"id": 6, "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghostly officers duel. One turns and stares at you.", "choices": [
+      {"id": 6, "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghostly warriors duel. One turns and stares at you.", "choices": [
         {"text": "Run toward Diwan-i-Aam", "next_step": 7},
-        {"text": "Try to speak to the officer", "death": "Death — executed by flying swords."}
+        {"text": "Try to speak to the warrior", "death": "The warrior ghost slits your throat with flying swords."}
       ]},
   
       {"id": 7, "text": "You enter Diwan-i-Aam. The throne is empty, but footsteps surround you.", "choices": [
