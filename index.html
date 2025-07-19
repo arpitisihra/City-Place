@@ -40,7 +40,24 @@
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, update, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC29xS9pSsMCwaNtjWu1nkc9oWXlagZcGY",
+      authDomain: "citypalacegame.firebaseapp.com",
+      databaseURL: "https://citypalacegame-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "citypalacegame",
+      storageBucket: "citypalacegame.firebasestorage.app",
+      messagingSenderId: "119489449166",
+      appId: "1:119489449166:web:8b1869600bbe8a192dd49f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const sessionId = Date.now().toString();
+
     let steps = [];
     let currentStep = 1;
 
@@ -48,6 +65,7 @@
       .then(response => response.json())
       .then(data => {
         steps = data.steps;
+        logVisit();
         showStep(currentStep);
       })
       .catch(error => {
@@ -60,6 +78,7 @@
       if (!step) return;
 
       currentStep = stepId;
+      logStep(stepId);
       document.getElementById("story").innerText = step.text;
 
       const choicesDiv = document.getElementById("choices");
@@ -74,6 +93,7 @@
           if (choice.next_step) {
             showStep(choice.next_step);
           } else {
+            logDeath(stepId);
             showDeath(choice.death || "You have died.");
           }
         };
@@ -90,6 +110,21 @@
       restartButton.innerText = "Restart";
       restartButton.onclick = () => showStep(4);
       choicesDiv.appendChild(restartButton);
+    }
+
+    function logVisit() {
+      const visitRef = ref(db, `analytics/visits/${sessionId}`);
+      set(visitRef, { timestamp: Date.now() });
+    }
+
+    function logStep(stepId) {
+      const stepRef = ref(db, `analytics/steps/${stepId}`);
+      update(stepRef, { count: increment(1) });
+    }
+
+    function logDeath(stepId) {
+      const deathRef = ref(db, `analytics/deaths/${stepId}`);
+      update(deathRef, { count: increment(1) });
     }
   </script>
 </body>
