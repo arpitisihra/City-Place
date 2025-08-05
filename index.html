@@ -37,11 +37,12 @@
     }
   </style>
   <!-- Mixpanel JavaScript SDK -->
+  <!-- This script loads the Mixpanel library into the window.mixpanel object -->
   <script type="text/javascript">
-    (function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.2length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}};var c=e.cross_subdomain_cookie=e.cross_subdomain_cookie!==!1;d=a;b._i.push([a,e,d]);f(b,"init");f(b,"track");f(b,"track_links");f(b,"track_forms");f(b,"register");f(b,"register_once");f(b,"alias");f(b,"unregister");f(b,"identify");f(b,"is_identified");f(b,"get_group");f(b,"set_group");f(b,"remove_group");f(b,"track_with_groups");f(b,"add_group");f(b,"set_group_once");f(b,"unset_group");f(b,"time_event");f(b,"clear_charge");f(b,"people.set");f(b,"people.set_once");f(b,"people.unset");f(b,"people.increment");f(b,"people.append");f(b,"people.union");f(b,"people.track_charge");f(b,"people.clear_charges");f(b,"people.delete_user");var h="disable track_pageview track_session_id track_email track_utm_source track_gclid";b._i.push([a,c,e,d,h.split(" ")]);var i,g;for(g=0;g<b._i.length;g++)f(b,b._i[g][0]),i=b._i[g],b[i[0]]({token:i[0],cross_subdomain_cookie:i[1],opt_out_tracking_by_default:i[2],debug:!0,track_pageview:!0,persistence:"localStorage"});var j=e.persistence,l=e.opt_out_tracking_by_default,m=e.persistence_name;if(e.persistence==="localStorage")try{window.localStorage.setItem("mixpanel_opt_out_test","1"),window.localStorage.removeItem("mixpanel_opt_out_test")}catch(k){j="cookie"}if(j==="localStorage"){e.persistence_name=m||"mixpanel-data";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}else if(j==="cookie"){e.persistence_name=m||"mp_token";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}}var c=e.mixpanel||[];b.init=function(a,d){c.push(["init",a,d]);b.init(a,d);return b};b.push=function(a){if(a[0]==="init"){b.init(a[1],a[2])}else{b.push(a)}}};window.mixpanel=c})("undefined"!=typeof window?window:{},document);
+    (function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}};var c=e.cross_subdomain_cookie=e.cross_subdomain_cookie!==!1;d=a;b._i.push([a,e,d]);f(b,"init");f(b,"track");f(b,"track_links");f(b,"track_forms");f(b,"register");f(b,"register_once");f(b,"alias");f(b,"unregister");f(b,"identify");f(b,"is_identified");f(b,"get_group");f(b,"set_group");f(b,"remove_group");f(b,"track_with_groups");f(b,"add_group");f(b,"set_group_once");f(b,"unset_group");f(b,"time_event");f(b,"clear_charge");f(b,"people.set");f(b,"people.set_once");f(b,"people.unset");f(b,"people.increment");f(b,"people.append");f(b,"people.union");f(b,"people.track_charge");f(b,"people.clear_charges");f(b,"people.delete_user");var h="disable track_pageview track_session_id track_email track_utm_source track_gclid";b._i.push([a,c,e,d,h.split(" ")]);var i,g;for(g=0;g<b._i.length;g++)f(b,b._i[g][0]),i=b._i[g],b[i[0]]({token:i[0],cross_subdomain_cookie:i[1],opt_out_tracking_by_default:i[2],debug:!0,track_pageview:!0,persistence:"localStorage"});var j=e.persistence,l=e.opt_out_tracking_by_default,m=e.persistence_name;if(e.persistence==="localStorage")try{window.localStorage.setItem("mixpanel_opt_out_test","1"),window.localStorage.removeItem("mixpanel_opt_out_test")}catch(k){j="cookie"}if(j==="localStorage"){e.persistence_name=m||"mixpanel-data";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}else if(j==="cookie"){e.persistence_name=m||"mp_token";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}}var c=e.mixpanel||[];b.init=function(a,d){c.push(["init",a,d]);b.init(a,d);return b};b.push=function(a){if(a[0]==="init"){b.init(a[1],a[2])}else{b.push(a)}}};window.mixpanel=c})("undefined"!=typeof window?window:{},document);
   </script>
-  <script>
-    // Initialize Mixpanel with your Project Token
+  <!-- Initialize Mixpanel with your Project Token. This must be a separate script tag. -->
+  <script type="text/javascript">
     mixpanel.init("44afc6e242972a88c98221ee2a145b2c", {debug: true, track_pageview: true, persistence: "localStorage"}); // Your actual Mixpanel Project Token
   </script>
 </head>
@@ -50,7 +51,8 @@
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <script type="module">
+  <!-- Main game logic script -->
+  <script type="text/javascript">
     // Define a unique ID for this game
     const GAME_ID = "city_palace_game"; // Unique identifier for your game
 
@@ -61,25 +63,258 @@
     let currentStep = 1;
     let gameStartTime = 0; // To track game duration
 
-    // Fetch the story.json (assuming it's in the same directory)
-    fetch("story.json")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    // --- Embedded Story Data (formerly story.json) ---
+    const storyData = {
+      "steps": [
+        {
+          "id": 1,
+          "text": "You enter a forgotten library in the old city. A strange force pulls you toward a shelf. A black-cloth-wrapped book lies pulsing shining in the corner.",
+          "choices": [
+            { "text": "Proceed", "next_step": 2 }
+          ]
+        },
+        {
+          "id": 2,
+          "text": "You unwrap the book. It’s titled 'The Cursed City Palace of Jaipur'. The pages are blank. You try to close it, but it flips open on its own.",
+          "choices": [
+            { "text": "Proceed", "next_step": 3 }
+          ]
+        },
+        {
+          "id": 3,
+          "text": "The page reads: 'You wanted the cursed City Palace. I’ll take you there.' Your body rises. Wind howls. A vortex forms — you’re sucked in.",
+          "choices": [
+            { "text": "Proceed", "next_step": 4 }
+          ]
+        },
+        {
+          "id": 4,
+          "text": "You find yourself at Mubarak Mahal under a moonlit sky. The palace is empty and silent. You feel eyes watching.",
+          "choices": [
+            { "text": "Move towards the building", "next_step": 5 },
+            { "text": "Walk out of the gate behind you", "death": "You're dragged into the darkness by spirits of old pehredaars and killed." }
+          ]
+        },
+        {
+          "id": 5,
+          "text": "You walk towards the building. No one’s there but you hear whispers in Marwari.",
+          "choices": [
+            { "text": "Speak back to the voices", "death": "You mispronounce something in Marwari and are struck by a flying mace. You die on the spot." },
+            { "text": "Step back slowly and cross to Sileh Khana", "next_step": 6 }
+          ]
+        },
+        {
+          "id": 6,
+          "text": "You reach Sileh Khana. Weapons float and clash mid-air. Ghosts of warriors without faces duel. One turns and stares at you.",
+          "choices": [
+            { "text": "Run towards Diwan-i-Aam", "next_step": 7 },
+            { "text": "Try to speak with gestures with the warrior", "death": "The warrior ghost slits your throat with his sword." }
+          ]
+        },
+        {
+          "id": 7,
+          "text": "You enter Diwan-i-Aam. The throne is empty, but footsteps surround you.",
+          "choices": [
+            { "text": "Kneel and pretend to be a servant", "death": "You're trampled by ghost nobles and your throat is slit opened" },
+            { "text": "Crawl behind the pillar and hide", "next_step": 8 }
+          ]
+        },
+        {
+          "id": 8,
+          "text": "The ghost of king's bodyguard sees you from behind the throne. 'Are you looking for help,' he says.",
+          "choices": [
+            { "text": "Run through the open corridor", "next_step": 9 },
+            { "text": "Run to him for help", "death": "Ghosts jump from the ceiling and hang you with an invisible rope." }
+          ]
+        },
+        {
+          "id": 9,
+          "text": "You’re now near Rajendra Pol and ghosts are chasing you. You see two giant Silver Vessels glimmer.",
+          "choices": [
+            { "text": "Hide inside a vessel", "next_step": 10 },
+            { "text": "Run towards Chandra Mahal", "death": "You're hit by an arrow to the heart. You're dead" }
+          ]
+        },
+        {
+          "id": 10,
+          "text": "Inside the vessel, you find the King's lighter. You flick it on. An inscription on the vessel reads: Above the moon, beyond the fire — the mantra lies on Chandra’s spire. Speak it to awaken the sleeping gods.",
+          "choices": [
+            { "text": "Stay hidden in the vessel", "death": "The ghosts run you down and attack you with maces and knives. You bleed to death." },
+            { "text": "Run towards Chandra Mahal", "next_step": 11 }
+          ]
+        },
+        {
+          "id": 11,
+          "text": "The inscription you read shakes the palace compound like an earthquake. A chant echoes from afar.",
+          "choices": [
+            { "text": "Keep running", "next_step": 12 },
+            { "text": "Wait for the shaking to stop", "death": "Shadows jump on you from above and break your neck. You die a painful death." }
+          ]
+        },
+        {
+          "id": 12,
+          "text": "You step out and find a statue of a warrior on a horse.",
+          "choices": [
+            { "text": "Bow down", "next_step": 13 },
+            { "text": "Try to get the sword out of the warrior's hand", "death": "The warrior comes to life and breaks your skull with his sword. You bleed your brains out and die." }
+          ]
+        },
+        {
+          "id": 13,
+          "text": "The statue disappeared. You run and reach Ridhi Sidhi Pol. The arch pulses with strange red light. You see a small child crying loudly.",
+          "choices": [
+            { "text": "Turn back and run fast", "next_step": 14 },
+            { "text": "Move forward and take care of the child", "death": "The child turns into a beast and bites your neck off. You die a painful death." }
+          ]
+        },
+        {
+          "id": 14,
+          "text": "You've reached Pritam Chowk and see four season-painted doors. All slam shut, you hear a voice - You can only choose one door.",
+          "choices": [
+            { "text": "Choose the blue door", "next_step": 15 },
+            { "text": "Choose the red door", "death": "You enter the door and fall into a fire pit and die." }
+          ]
+        },
+        {
+          "id": 15,
+          "text": "The blue door opens on its own and you walk in and find a mirror room. A giant mirror has something written on it in Sanskrit.",
+          "choices": [
+            { "text": "Shatter the mirror", "next_step": 16 },
+            { "text": "Read out loud what's written on the mirror", "death": "It's a mantra to kill whoever reads it, you're sucked into mirror world and cut into pieces." }
+          ]
+        },
+        {
+          "id": 16,
+          "text": "The shattered mirror makes way for you into The Chamber of Whispers. You hear whispers offering you advise and help.",
+          "choices": [
+            { "text": "Chant 'Stay quiet for some time'", "next_step": 17 },
+            { "text": "Ask for help", "death": "They are the whispers of cursed daasis who drag your body out and crush your skull with stones " }
+          ]
+        },
+        {
+          "id": 17,
+          "text": "The whispers vanish after some time. A ghost of a palace worker appears, holding out a key to the lock on the door.",
+          "choices": [
+            { "text": "Accept it respectfully", "next_step": 18 },
+            { "text": "Touch his feet", "death": "The ghost hits you with a dagger in your spine. You die a painful death." }
+          ]
+        },
+        {
+          "id": 18,
+          "text": "You use the key on a locked room. Inside, you see a floating conch.",
+          "choices": [
+            { "text": "Blow the conch", "next_step": 19 },
+            { "text": "Smash it", "death": "Your ears explode from a million screams. You suffer a heart attack and die." }
+          ]
+        },
+        {
+          "id": 19,
+          "text": "A stairway appears leading up, carved into the wall.",
+          "choices": [
+            { "text": "Light your way with the lighter", "next_step": 20 },
+            { "text": "Walk in darkness", "death": "You fall into a deep stone chamber and die." }
+          ]
+        },
+        {
+          "id": 20,
+          "text": "The walls are painted with war scenes. The eyes of painted soldiers move.",
+          "choices": [
+            { "text": "Bow and walk humbly", "next_step": 21 },
+            { "text": "Ask the soldiers the way to Chandra Mahal", "death": "The soldiers come out of the painting and cut your throat off with their swords. You're dead." }
+          ]
+        },
+        {
+          "id": 21,
+          "text": "You reach a chamber full of gold coins.",
+          "choices": [
+            { "text": "Keep walking", "next_step": 22 },
+            { "text": "Grab a coin and run", "death": "The Djinn guarding the treasure appears and hits your head with a spear. You're dead." }
+          ]
+        },
+        {
+          "id": 22,
+          "text": "You ascend Chandra Mahal. The halls twist unnaturally.",
+          "choices": [
+            { "text": "Mark your path with blood", "next_step": 23 },
+            { "text": "Leave no markings", "death": "You get lost in an endless loop and die after a few days." }
+          ]
+        },
+        {
+          "id": 23,
+          "text": "A royal woman glides past with a baby in her hands, humming a lullaby. They're both headless.",
+          "choices": [
+            { "text": "Bow silently and run towards the opposite side", "next_step": 24 },
+            { "text": "Follow them and find a way", "death": "They suddenly grow heads and their screams fetch your soul away. You're dead" }
+          ]
+        },
+        {
+          "id": 24,
+          "text": "You reach a corner and the find a red cloth with a Mantra in Sanskrit",
+          "choices": [
+            { "text": "Memorize it and run fast", "next_step": 25 },
+            { "text": "Grab the cloth and run", "death": "The cloth ties itself around your neck and lift your body up in the air. Your dead body hangs in the air till it rots." }
+          ]
+        },
+        {
+          "id": 25,
+          "text": "You run while speaking the mantra. The wind picks up violently. You reach another door and a voice whispers, 'Only the pure heart may pass.'",
+          "choices": [
+            { "text": "Bow down and ask to be let go", "next_step": 26 },
+            { "text": "Tell them you have a pure heart", "death": "The ghost of the guard caught a lie and hit you with a mace. You're dead" }
+          ]
+        },
+        {
+          "id": 26,
+          "text": "A door opens, but the second one blocks the rooftop. It requires a sacrifice.",
+          "choices": [
+            { "text": "Offer a drop of your blood", "next_step": 27 },
+            { "text": "Offer the lighter", "death": "It's rejected and you're thrown down the stairs. You die" }
+          ]
+        },
+        {
+          "id": 27,
+          "text": "You step onto the rooftop of Chandra Mahal. The final mantra is inscribed on a stone. There's also a brick of gold with something written on it",
+          "choices": [
+            { "text": "Chant the mantra", "next_step": 28 },
+            { "text": "Read what's written on the gold brick", "death": "The brick rises in the air and hits you in the head. You bleed to death." }
+          ]
+        },
+        {
+          "id": 28,
+          "text": "As you start speaking the mantra, the spirits scream. The ground shakes. Light bursts from the sky.",
+          "choices": [
+            { "text": "Keep chanting the mantra", "next_step": 29 },
+            { "text": "Look up in the sky", "death": "You're sucked into the clouds of spirits. Your spirit is now their slave" }
+          ]
+        },
+        {
+          "id": 29,
+          "text": "As you chant the mantra, you rise into the sky. The vortex returns. Faces of the cursed reach for you.",
+          "choices": [
+            { "text": "Fold hands and offer them peace", "next_step": 30 },
+            { "text": "Chant the Mantra loudly at them", "death": "They reach for your soul and pull it out, dragging you into eternal torment. You collapse beneath the sky." }
+          ]
+        },
+        {
+          "id": 30,
+          "text": "You keep rising up, your eyes feel heavy and you close them. A few moments later, you wake up in the library. The book is closed beside you. One drop of blood stains the page. Congrats, you survived.",
+          "is_ending": true,
+          "is_death": false,
+          "choices": [
+            { "text": "Restart / Share Your Ending", "next_step": 1 }
+          ]
         }
-        return response.json();
-      })
-      .then(data => {
-        steps = data.steps;
-        gameStartTime = Date.now(); // Record game start time
-        logGameStarted(); // Log game started event to Mixpanel
-        showStep(currentStep);
-      })
-      .catch(error => {
-        document.getElementById("story").innerText = "Failed to load story. Please ensure story.json is present and accessible.";
-        console.error("Error loading story.json:", error);
-      });
+      ]
+    };
+    // --- End Embedded Story Data ---
 
+    // No longer fetching story.json, directly use storyData
+    steps = storyData.steps;
+    gameStartTime = Date.now(); // Record game start time
+    logGameStarted(); // Log game started event to Mixpanel
+    showStep(currentStep);
+
+    // The rest of your functions remain the same
     function showStep(stepId) {
       const step = steps.find(s => s.id === stepId);
       if (!step) {
@@ -89,37 +324,32 @@
       }
 
       currentStep = stepId;
-      // Mixpanel automatically tracks page views if track_pageview is true in init.
-      // We'll still log a custom event for 'Page Viewed' to include game-specific properties.
-      logPageView(stepId, step.text.substring(0, 50) + '...'); // Log page view to Mixpanel
+      logPageView(stepId, step.text.substring(0, 50) + '...');
       document.getElementById("story").innerText = step.text;
 
       const choicesDiv = document.getElementById("choices");
       choicesDiv.innerHTML = "";
 
-      // Shuffle choices to make each playthrough slightly different
       const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
 
       shuffledChoices.forEach((choice, index) => {
         const button = document.createElement("button");
         button.innerText = choice.text;
         button.onclick = () => {
-          logChoiceMade(stepId, choice.text, choice.next_step || 'death', index + 1); // Log choice made to Mixpanel
+          logChoiceMade(stepId, choice.text, choice.next_step || 'death', index + 1);
           if (choice.next_step) {
             showStep(choice.next_step);
           } else {
-            logDeath(stepId, choice.death || "Unknown cause of death"); // Log death to Mixpanel
-            logGameCompleted('Death'); // Log game completed with death type
+            logDeath(stepId, choice.death || "Unknown cause of death");
+            logGameCompleted('Death');
             showDeath(choice.death || "You have died.");
           }
         };
         choicesDiv.appendChild(button);
       });
 
-      // Check if it's a successful ending
-      // Assuming your story.json can have an 'is_ending' flag for successful endings and 'is_death' for death endings
       if (step.is_ending && !step.is_death) {
-          logGameCompleted('Success'); // Log game completed with success type
+          logGameCompleted('Success');
       }
     }
 
@@ -131,10 +361,9 @@
       const restartButton = document.createElement("button");
       restartButton.innerText = "Restart";
       restartButton.onclick = () => {
-        // Reset game for restart
         currentStep = 1;
-        gameStartTime = Date.now(); // Reset start time for new game
-        logGameStarted(); // Log new game started event
+        gameStartTime = Date.now();
+        logGameStarted();
         showStep(currentStep);
       };
       choicesDiv.appendChild(restartButton);
@@ -142,7 +371,6 @@
 
     // --- Mixpanel Event Logging Functions ---
 
-    // Logs when a new game session begins
     function logGameStarted() {
       mixpanel.track("Game Started", {
         game_id: GAME_ID,
@@ -152,18 +380,16 @@
       console.log("Mixpanel Event: Game Started", { game_id: GAME_ID, session_id: sessionId });
     }
 
-    // Logs when a player views a new step/page
     function logPageView(pageId, pageTitleSnippet) {
       mixpanel.track("Page Viewed", {
         game_id: GAME_ID,
         session_id: sessionId,
         page_id: pageId,
-        page_title_snippet: pageTitleSnippet // Use a snippet to avoid very long titles
+        page_title_snippet: pageTitleSnippet
       });
       console.log("Mixpanel Event: Page Viewed", { game_id: GAME_ID, session_id: sessionId, page_id: pageId });
     }
 
-    // Logs when a player makes a choice
     function logChoiceMade(pageId, choiceText, nextStepId, choiceNumber) {
       mixpanel.track("Choice Made", {
         game_id: GAME_ID,
@@ -176,9 +402,8 @@
       console.log("Mixpanel Event: Choice Made", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, choice_text: choiceText });
     }
 
-    // Logs when a player dies
     function logDeath(pageId, causeOfDeath) {
-      mixpanel.track("Player Died", { // Changed event name to "Player Died" for clarity
+      mixpanel.track("Player Died", {
         game_id: GAME_ID,
         session_id: sessionId,
         page_id: pageId,
@@ -187,9 +412,8 @@
       console.log("Mixpanel Event: Player Died", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, cause_of_death: causeOfDeath });
     }
 
-    // Logs when a game is completed (either success or death)
     function logGameCompleted(endingType) {
-      const gameDuration = (Date.now() - gameStartTime) / 1000; // Duration in seconds
+      const gameDuration = (Date.now() - gameStartTime) / 1000;
       mixpanel.track("Game Completed", {
         game_id: GAME_ID,
         session_id: sessionId,
@@ -198,7 +422,6 @@
       });
       console.log("Mixpanel Event: Game Completed", { game_id: GAME_ID, session_id: sessionId, ending_type: endingType, duration: gameDuration });
     }
-
   </script>
 </body>
 </html>
