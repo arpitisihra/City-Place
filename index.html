@@ -29,11 +29,21 @@
       width: 100%;
       font-size: 1rem;
       cursor: pointer;
+      border-radius: 8px; /* Added rounded corners */
+      transition: background-color 0.3s ease; /* Smooth hover effect */
     }
     button:hover {
       background-color: #222;
     }
   </style>
+  <!-- Mixpanel JavaScript SDK -->
+  <script type="text/javascript">
+    (function(e,b){if(!b.__SV){var a,f,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.2length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}};var c=e.cross_subdomain_cookie=e.cross_subdomain_cookie!==!1;d=a;b._i.push([a,e,d]);f(b,"init");f(b,"track");f(b,"track_links");f(b,"track_forms");f(b,"register");f(b,"register_once");f(b,"alias");f(b,"unregister");f(b,"identify");f(b,"is_identified");f(b,"get_group");f(b,"set_group");f(b,"remove_group");f(b,"track_with_groups");f(b,"add_group");f(b,"set_group_once");f(b,"unset_group");f(b,"time_event");f(b,"clear_charge");f(b,"people.set");f(b,"people.set_once");f(b,"people.unset");f(b,"people.increment");f(b,"people.append");f(b,"people.union");f(b,"people.track_charge");f(b,"people.clear_charges");f(b,"people.delete_user");var h="disable track_pageview track_session_id track_email track_utm_source track_gclid";b._i.push([a,c,e,d,h.split(" ")]);var i,g;for(g=0;g<b._i.length;g++)f(b,b._i[g][0]),i=b._i[g],b[i[0]]({token:i[0],cross_subdomain_cookie:i[1],opt_out_tracking_by_default:i[2],debug:!0,track_pageview:!0,persistence:"localStorage"});var j=e.persistence,l=e.opt_out_tracking_by_default,m=e.persistence_name;if(e.persistence==="localStorage")try{window.localStorage.setItem("mixpanel_opt_out_test","1"),window.localStorage.removeItem("mixpanel_opt_out_test")}catch(k){j="cookie"}if(j==="localStorage"){e.persistence_name=m||"mixpanel-data";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}else if(j==="cookie"){e.persistence_name=m||"mp_token";if(l){b.optOutTracking();delete e.opt_out_tracking_by_default}}}var c=e.mixpanel||[];b.init=function(a,d){c.push(["init",a,d]);b.init(a,d);return b};b.push=function(a){if(a[0]==="init"){b.init(a[1],a[2])}else{b.push(a)}}};window.mixpanel=c})("undefined"!=typeof window?window:{},document);
+  </script>
+  <script>
+    // Initialize Mixpanel with your Project Token
+    mixpanel.init("44afc6e242972a88c98221ee2a145b2c", {debug: true, track_pageview: true, persistence: "localStorage"}); // Your actual Mixpanel Project Token
+  </script>
 </head>
 <body>
   <h1>Escape City Palace</h1>
@@ -41,64 +51,76 @@
   <div class="choices" id="choices"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, set, update, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    // Define a unique ID for this game
+    const GAME_ID = "city_palace_game"; // Unique identifier for your game
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC29xS9pSsMCwaNtjWu1nkc9oWXlagZcGY",
-      authDomain: "citypalacegame.firebaseapp.com",
-      databaseURL: "https://citypalacegame-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "citypalacegame",
-      storageBucket: "citypalacegame.firebasestorage.app",
-      messagingSenderId: "119489449166",
-      appId: "1:119489449166:web:8b1869600bbe8a192dd49f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const sessionId = Date.now().toString();
+    // Generate a session ID for each playthrough
+    const sessionId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
 
     let steps = [];
     let currentStep = 1;
+    let gameStartTime = 0; // To track game duration
 
+    // Fetch the story.json (assuming it's in the same directory)
     fetch("story.json")
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         steps = data.steps;
-        logVisit();
+        gameStartTime = Date.now(); // Record game start time
+        logGameStarted(); // Log game started event to Mixpanel
         showStep(currentStep);
       })
       .catch(error => {
-        document.getElementById("story").innerText = "Failed to load story.";
-        console.error(error);
+        document.getElementById("story").innerText = "Failed to load story. Please ensure story.json is present and accessible.";
+        console.error("Error loading story.json:", error);
       });
 
     function showStep(stepId) {
       const step = steps.find(s => s.id === stepId);
-      if (!step) return;
+      if (!step) {
+        console.error(`Step with ID ${stepId} not found.`);
+        document.getElementById("story").innerText = "An error occurred: Story step not found.";
+        return;
+      }
 
       currentStep = stepId;
-      logStep(stepId);
+      // Mixpanel automatically tracks page views if track_pageview is true in init.
+      // We'll still log a custom event for 'Page Viewed' to include game-specific properties.
+      logPageView(stepId, step.text.substring(0, 50) + '...'); // Log page view to Mixpanel
       document.getElementById("story").innerText = step.text;
 
       const choicesDiv = document.getElementById("choices");
       choicesDiv.innerHTML = "";
 
+      // Shuffle choices to make each playthrough slightly different
       const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
 
-      shuffledChoices.forEach(choice => {
+      shuffledChoices.forEach((choice, index) => {
         const button = document.createElement("button");
         button.innerText = choice.text;
         button.onclick = () => {
+          logChoiceMade(stepId, choice.text, choice.next_step || 'death', index + 1); // Log choice made to Mixpanel
           if (choice.next_step) {
             showStep(choice.next_step);
           } else {
-            logDeath(stepId);
+            logDeath(stepId, choice.death || "Unknown cause of death"); // Log death to Mixpanel
+            logGameCompleted('Death'); // Log game completed with death type
             showDeath(choice.death || "You have died.");
           }
         };
         choicesDiv.appendChild(button);
       });
+
+      // Check if it's a successful ending
+      // Assuming your story.json can have an 'is_ending' flag for successful endings and 'is_death' for death endings
+      if (step.is_ending && !step.is_death) {
+          logGameCompleted('Success'); // Log game completed with success type
+      }
     }
 
     function showDeath(deathMessage) {
@@ -108,24 +130,75 @@
 
       const restartButton = document.createElement("button");
       restartButton.innerText = "Restart";
-      restartButton.onclick = () => showStep(4);
+      restartButton.onclick = () => {
+        // Reset game for restart
+        currentStep = 1;
+        gameStartTime = Date.now(); // Reset start time for new game
+        logGameStarted(); // Log new game started event
+        showStep(currentStep);
+      };
       choicesDiv.appendChild(restartButton);
     }
 
-    function logVisit() {
-      const visitRef = ref(db, `analytics/visits/${sessionId}`);
-      set(visitRef, { timestamp: Date.now() });
+    // --- Mixpanel Event Logging Functions ---
+
+    // Logs when a new game session begins
+    function logGameStarted() {
+      mixpanel.track("Game Started", {
+        game_id: GAME_ID,
+        session_id: sessionId,
+        game_title: "Escape City Palace"
+      });
+      console.log("Mixpanel Event: Game Started", { game_id: GAME_ID, session_id: sessionId });
     }
 
-    function logStep(stepId) {
-      const stepRef = ref(db, `analytics/steps/${stepId}`);
-      update(stepRef, { count: increment(1) });
+    // Logs when a player views a new step/page
+    function logPageView(pageId, pageTitleSnippet) {
+      mixpanel.track("Page Viewed", {
+        game_id: GAME_ID,
+        session_id: sessionId,
+        page_id: pageId,
+        page_title_snippet: pageTitleSnippet // Use a snippet to avoid very long titles
+      });
+      console.log("Mixpanel Event: Page Viewed", { game_id: GAME_ID, session_id: sessionId, page_id: pageId });
     }
 
-    function logDeath(stepId) {
-      const deathRef = ref(db, `analytics/deaths/${stepId}`);
-      update(deathRef, { count: increment(1) });
+    // Logs when a player makes a choice
+    function logChoiceMade(pageId, choiceText, nextStepId, choiceNumber) {
+      mixpanel.track("Choice Made", {
+        game_id: GAME_ID,
+        session_id: sessionId,
+        page_id: pageId,
+        choice_text: choiceText,
+        next_step_id: nextStepId,
+        choice_number: choiceNumber
+      });
+      console.log("Mixpanel Event: Choice Made", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, choice_text: choiceText });
     }
+
+    // Logs when a player dies
+    function logDeath(pageId, causeOfDeath) {
+      mixpanel.track("Player Died", { // Changed event name to "Player Died" for clarity
+        game_id: GAME_ID,
+        session_id: sessionId,
+        page_id: pageId,
+        cause_of_death: causeOfDeath
+      });
+      console.log("Mixpanel Event: Player Died", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, cause_of_death: causeOfDeath });
+    }
+
+    // Logs when a game is completed (either success or death)
+    function logGameCompleted(endingType) {
+      const gameDuration = (Date.now() - gameStartTime) / 1000; // Duration in seconds
+      mixpanel.track("Game Completed", {
+        game_id: GAME_ID,
+        session_id: sessionId,
+        ending_type: endingType,
+        game_duration_seconds: gameDuration
+      });
+      console.log("Mixpanel Event: Game Completed", { game_id: GAME_ID, session_id: sessionId, ending_type: endingType, duration: gameDuration });
+    }
+
   </script>
 </body>
 </html>
