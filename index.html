@@ -48,7 +48,7 @@
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <!-- Main game logic script - Changed to type="text/javascript" -->
+  <!-- Main game logic script -->
   <script type="text/javascript">
     // Define a unique ID for this game
     const GAME_ID = "city_palace_game"; // Unique identifier for your game
@@ -309,7 +309,12 @@
     document.addEventListener('DOMContentLoaded', () => {
       steps = storyData.steps;
       gameStartTime = Date.now(); // Record game start time
-      logGameStarted(); // Log game started event to Mixpanel
+      // Ensure mixpanel is defined before calling logGameStarted
+      if (typeof mixpanel !== 'undefined') {
+        logGameStarted(); // Log game started event to Mixpanel
+      } else {
+        console.warn("Mixpanel is not defined at DOMContentLoaded. Event 'Game Started' will not be tracked.");
+      }
       showStep(currentStep);
     });
 
