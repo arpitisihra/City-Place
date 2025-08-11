@@ -29,38 +29,28 @@
       width: 100%;
       font-size: 1rem;
       cursor: pointer;
-      border-radius: 8px; /* Added rounded corners */
-      transition: background-color 0.3s ease; /* Smooth hover effect */
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #222;
     }
   </style>
-  <!-- Mixpanel JavaScript SDK - Loaded from CDN -->
-  <script type="text/javascript" src="https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js"></script>
-  <!-- Initialize Mixpanel with your Project Token -->
-  <script type="text/javascript">
-    mixpanel.init("44afc6e242972a88c98221ee2a145b2c", {debug: true, track_pageview: true, persistence: "localStorage"}); // Your actual Mixpanel Project Token
-  </script>
-</head>
+  </head>
 <body>
   <h1>Escape City Palace</h1>
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <!-- Main game logic script -->
   <script type="text/javascript">
     // Define a unique ID for this game
-    const GAME_ID = "city_palace_game"; // Unique identifier for your game
-
-    // Generate a session ID for each playthrough
+    const GAME_ID = "city_palace_game";
     const sessionId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
-
     let steps = [];
     let currentStep = 1;
-    let gameStartTime = 0; // To track game duration
+    let gameStartTime = 0;
 
-    // --- Embedded Story Data (formerly story.json) ---
+    // --- Embedded Story Data ---
     const storyData = {
       "steps": [
         {
@@ -297,158 +287,3 @@
           "text": "You keep rising up, your eyes feel heavy and you close them. A few moments later, you wake up in the library. The book is closed beside you. One drop of blood stains the page. Congrats, you survived.",
           "is_ending": true,
           "is_death": false,
-          "choices": [
-            { "text": "Restart / Share Your Ending", "next_step": 1 }
-          ]
-        }
-      ]
-    };
-    // --- End Embedded Story Data ---
-
-    // Main game initialization logic
-    document.addEventListener('DOMContentLoaded', () => {
-      steps = storyData.steps;
-      gameStartTime = Date.now(); // Record game start time
-      // Ensure mixpanel is defined before calling logGameStarted
-      if (typeof mixpanel !== 'undefined') {
-        logGameStarted(); // Log game started event to Mixpanel
-      } else {
-        console.warn("Mixpanel is not defined at DOMContentLoaded. Event 'Game Started' will not be tracked.");
-      }
-      showStep(currentStep);
-    });
-
-    // The rest of your functions remain the same
-    function showStep(stepId) {
-      const step = steps.find(s => s.id === stepId);
-      if (!step) {
-        console.error(`Step with ID ${stepId} not found.`);
-        document.getElementById("story").innerText = "An error occurred: Story step not found.";
-        return;
-      }
-
-      currentStep = stepId;
-      logPageView(stepId, step.text.substring(0, 50) + '...');
-      document.getElementById("story").innerText = step.text;
-
-      const choicesDiv = document.getElementById("choices");
-      choicesDiv.innerHTML = "";
-
-      // Choices are shuffled here for each step display, including restarts
-      const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
-
-      shuffledChoices.forEach((choice, index) => {
-        const button = document.createElement("button");
-        button.innerText = choice.text;
-        button.onclick = () => {
-          logChoiceMade(stepId, choice.text, choice.next_step || 'death', index + 1);
-          if (choice.next_step) {
-            showStep(choice.next_step);
-          } else {
-            logDeath(stepId, choice.death || "Unknown cause of death");
-            logGameCompleted('Death');
-            showDeath(choice.death || "You have died.");
-          }
-        };
-        choicesDiv.appendChild(button);
-      });
-
-      if (step.is_ending && !step.is_death) {
-          logGameCompleted('Success');
-      }
-    }
-
-    function showDeath(deathMessage) {
-      document.getElementById("story").innerText = deathMessage;
-      const choicesDiv = document.getElementById("choices");
-      choicesDiv.innerHTML = "";
-
-      const restartButton = document.createElement("button");
-      restartButton.innerText = "Restart";
-      // Crucial fix: Restart from step 4 as requested
-      restartButton.onclick = () => {
-        currentStep = 4; // Set starting step to 4
-        gameStartTime = Date.now(); // Reset start time for new game
-        logGameStarted(); // Log new game started event
-        showStep(currentStep);
-      };
-      choicesDiv.appendChild(restartButton);
-    }
-
-    // --- Mixpanel Event Logging Functions ---
-
-    function logGameStarted() {
-      // Ensure mixpanel is defined before tracking
-      if (typeof mixpanel !== 'undefined') {
-        mixpanel.track("Game Started", {
-          game_id: GAME_ID,
-          session_id: sessionId,
-          game_title: "Escape City Palace"
-        });
-        console.log("Mixpanel Event: Game Started", { game_id: GAME_ID, session_id: sessionId });
-      } else {
-        console.warn("Mixpanel is not defined. Event 'Game Started' not tracked.");
-      }
-    }
-
-    function logPageView(pageId, pageTitleSnippet) {
-      if (typeof mixpanel !== 'undefined') {
-        mixpanel.track("Page Viewed", {
-          game_id: GAME_ID,
-          session_id: sessionId,
-          page_id: pageId,
-          page_title_snippet: pageTitleSnippet
-        });
-        console.log("Mixpanel Event: Page Viewed", { game_id: GAME_ID, session_id: sessionId, page_id: pageId });
-      } else {
-        console.warn("Mixpanel is not defined. Event 'Page Viewed' not tracked.");
-      }
-    }
-
-    function logChoiceMade(pageId, choiceText, nextStepId, choiceNumber) {
-      if (typeof mixpanel !== 'undefined') {
-        mixpanel.track("Choice Made", {
-          game_id: GAME_ID,
-          session_id: sessionId,
-          page_id: pageId,
-          choice_text: choiceText,
-          next_step_id: nextStepId,
-          choice_number: choiceNumber
-        });
-        console.log("Mixpanel Event: Choice Made", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, choice_text: choiceText });
-      } else {
-        console.warn("Mixpanel is not defined. Event 'Choice Made' not tracked.");
-      }
-    }
-
-    function logDeath(pageId, causeOfDeath) {
-      if (typeof mixpanel !== 'undefined') {
-        mixpanel.track("Player Died", {
-          game_id: GAME_ID,
-          session_id: sessionId,
-          page_id: pageId,
-          cause_of_death: causeOfDeath
-        });
-        console.log("Mixpanel Event: Player Died", { game_id: GAME_ID, session_id: sessionId, page_id: pageId, cause_of_death: causeOfDeath });
-      } else {
-        console.warn("Mixpanel is not defined. Event 'Player Died' not tracked.");
-      }
-    }
-
-    function logGameCompleted(endingType) {
-      if (typeof mixpanel !== 'undefined') {
-        const gameDuration = (Date.now() - gameStartTime) / 1000;
-        mixpanel.track("Game Completed", {
-          game_id: GAME_ID,
-          session_id: sessionId,
-          ending_type: endingType,
-          game_duration_seconds: gameDuration
-        });
-        console.log("Mixpanel Event: Game Completed", { game_id: GAME_ID, session_id: sessionId, ending_type: endingType, duration: gameDuration });
-      } else {
-        console.warn("Mixpanel is not defined. Event 'Game Completed' not tracked.");
-      }
-    }
-  </script>
-</body>
-</html>
