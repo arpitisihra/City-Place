@@ -36,14 +36,110 @@
       background-color: #222;
     }
   </style>
+  <!-- Firebase SDKs for Analytics and Firestore -->
+  <script type="module">
+    // Import the functions needed from Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js"; // Core Firebase app
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; // Authentication
+    import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Firestore Database
+
+    // IMPORTANT: These variables are automatically provided by the Canvas environment for the dashboard.
+    // For your game running locally, we'll use your provided firebaseConfig.
+    // However, we still need to reference these to avoid errors if running in a Canvas-like iframe.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Your specific Firebase configuration from the console
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGBX2EcuMNlJeMD9sIDJvLTBJ21VfHr_4",
+      authDomain: "cyoa-games-analytics.firebaseapp.com",
+      projectId: "cyoa-games-analytics",
+      storageBucket: "cyoa-games-analytics.firebasestorage.app",
+      messagingSenderId: "716898948863",
+      appId: "1:716898948863:web:3a809e91eae25dadb95eca",
+      measurementId: "G-RWBHWLX0TL" // This is for Google Analytics, but not directly used by our Firestore logging
+    };
+
+    let app, db, auth, userId; // Declare global variables for Firebase instances
+
+    // Initialize Firebase app and services after the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize the Firebase app with your specific configuration
+      app = initializeApp(firebaseConfig);
+      // Get instances of Firestore and Authentication services
+      db = getFirestore(app);
+      auth = getAuth(app);
+
+      try {
+        // Authenticate the user. Use custom token if available (from Canvas), otherwise sign in anonymously.
+        if (initialAuthToken) {
+          await signInWithCustomToken(auth, initialAuthToken);
+        } else {
+          await signInAnonymously(auth);
+        }
+        userId = auth.currentUser?.uid; // Store the authenticated user's ID
+        console.log("Firebase initialized and authenticated successfully. User ID:", userId);
+      } catch (error) {
+        console.error("Firebase authentication failed during game setup:", error);
+      }
+    });
+
+    // --- Analytics Functions for Firestore ---
+    // These functions are exposed globally (window.log...) so your game logic can call them.
+
+    // Helper function to update Firestore documents for analytics
+    async function updateAnalytics(gameId, dataToUpdate) {
+        // Ensure Firestore and user are ready before attempting to write data
+        if (!db || !userId) {
+            console.warn("Firestore not initialized or user not authenticated. Analytics data cannot be sent.");
+            return;
+        }
+        // Reference to the specific game document in the public analytics collection
+        const docRef = doc(db, `artifacts/${appId}/public/data/gameAnalytics`, gameId);
+        try {
+            // Use setDoc with { merge: true } to create the document if it doesn't exist,
+            // or update it by merging new data without overwriting existing fields.
+            await setDoc(docRef, dataToUpdate, { merge: true });
+            // console.log("Analytics data sent:", gameId, dataToUpdate); // Uncomment for detailed logging
+        } catch (e) {
+            console.error("Failed to send analytics data to Firestore:", e);
+        }
+    }
+
+    // Logs when a game starts
+    window.logGameStarted = async (gameId) => {
+      await updateAnalytics(gameId, { totalStarts: increment(1) });
+    };
+
+    // Logs when a player reaches a specific step
+    window.logStepReached = async (gameId, stepId) => {
+      const stepPath = `stepReached.${stepId}`; // Use dot notation to update a specific property within the 'stepReached' map
+      await updateAnalytics(gameId, { [stepPath]: increment(1) });
+    };
+
+    // Logs when a player dies at a specific step
+    window.logPlayerDied = async (gameId, stepId, causeOfDeath) => {
+      const deathPath = `deathSteps.${stepId}`; // Use dot notation for the 'deathSteps' map
+      await updateAnalytics(gameId, { [deathPath]: increment(1) });
+    };
+
+    // Logs when a game is completed successfully
+    window.logGameWon = async (gameId) => {
+      await updateAnalytics(gameId, { totalWins: increment(1) });
+    };
+  </script>
 </head>
 <body>
   <h1>Escape City Palace</h1>
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <script>
-    // The story data is now embedded directly in the script
+  <script type="text/javascript">
+    // Define a unique ID for this game - IMPORTANT: CHANGE THIS FOR EACH NEW GAME!
+    // Example: "ancient_ruins_adventure", "forest_mystery_game"
+    const GAME_ID = "escape_city_palace"; 
+    
+    // The story data is embedded directly in the script
     const storyData = {
       "steps": [
         {
@@ -292,6 +388,12 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       steps = storyData.steps;
+      // Log that the game has started
+      if (typeof window.logGameStarted === 'function') {
+        window.logGameStarted(GAME_ID);
+      } else {
+        console.warn("Analytics function logGameStarted not available. Ensure Firebase SDK is loaded.");
+      }
       showStep(currentStep);
     });
 
@@ -303,11 +405,18 @@
       }
 
       currentStep = stepId;
+      // Log that this step has been reached
+      if (typeof window.logStepReached === 'function') {
+        window.logStepReached(GAME_ID, stepId);
+      } else {
+        console.warn("Analytics function logStepReached not available. Ensure Firebase SDK is loaded.");
+      }
+      
       document.getElementById("story").innerText = step.text;
       const choicesDiv = document.getElementById("choices");
       choicesDiv.innerHTML = "";
 
-      // Randomize the order of choices
+      // Randomize the order of choices for difficulty
       const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
 
       shuffledChoices.forEach(choice => {
@@ -315,8 +424,22 @@
         button.innerText = choice.text;
         button.onclick = () => {
           if (choice.next_step) {
+            // Check if this is a winning step (Step 30 is the win condition)
+            if (step.is_ending && !step.is_death) {
+              if (typeof window.logGameWon === 'function') {
+                window.logGameWon(GAME_ID);
+              } else {
+                console.warn("Analytics function logGameWon not available. Ensure Firebase SDK is loaded.");
+              }
+            }
             showStep(choice.next_step);
           } else {
+            // Log player death before showing the death message
+            if (typeof window.logPlayerDied === 'function') {
+              window.logPlayerDied(GAME_ID, currentStep, choice.death || "Unknown cause");
+            } else {
+              console.warn("Analytics function logPlayerDied not available. Ensure Firebase SDK is loaded.");
+            }
             showDeath(choice.death || "You have died.");
           }
         };
@@ -332,8 +455,14 @@
       const restartButton = document.createElement("button");
       restartButton.innerText = "Restart";
       restartButton.onclick = () => {
-        // Game now restarts from step 4 when the player dies
+        // When players die, the game restarts from step 4
         currentStep = 4;
+        // Log game started again for new playthrough
+        if (typeof window.logGameStarted === 'function') {
+          window.logGameStarted(GAME_ID);
+        } else {
+          console.warn("Analytics function logGameStarted not available on restart. Ensure Firebase SDK is loaded.");
+        }
         showStep(currentStep);
       };
       choicesDiv.appendChild(restartButton);
