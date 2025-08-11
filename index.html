@@ -36,21 +36,14 @@
       background-color: #222;
     }
   </style>
-  </head>
+</head>
 <body>
   <h1>Escape City Palace</h1>
   <div id="story"></div>
   <div class="choices" id="choices"></div>
 
-  <script type="text/javascript">
-    // Define a unique ID for this game
-    const GAME_ID = "city_palace_game";
-    const sessionId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
-    let steps = [];
-    let currentStep = 1;
-    let gameStartTime = 0;
-
-    // --- Embedded Story Data ---
+  <script>
+    // The story data is now embedded directly in the script
     const storyData = {
       "steps": [
         {
@@ -287,3 +280,63 @@
           "text": "You keep rising up, your eyes feel heavy and you close them. A few moments later, you wake up in the library. The book is closed beside you. One drop of blood stains the page. Congrats, you survived.",
           "is_ending": true,
           "is_death": false,
+          "choices": [
+            { "text": "Restart / Share Your Ending", "next_step": 1 }
+          ]
+        }
+      ]
+    };
+
+    let steps = [];
+    let currentStep = 1;
+
+    // The script now loads the story data directly on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      steps = storyData.steps;
+      showStep(currentStep);
+    });
+
+    function showStep(stepId) {
+      const step = steps.find(s => s.id === stepId);
+      if (!step) {
+        document.getElementById("story").innerText = "An error occurred: Story step not found.";
+        return;
+      }
+
+      currentStep = stepId;
+      document.getElementById("story").innerText = step.text;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+
+      const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
+
+      shuffledChoices.forEach(choice => {
+        const button = document.createElement("button");
+        button.innerText = choice.text;
+        button.onclick = () => {
+          if (choice.next_step) {
+            showStep(choice.next_step);
+          } else {
+            showDeath(choice.death || "You have died.");
+          }
+        };
+        choicesDiv.appendChild(button);
+      });
+    }
+
+    function showDeath(deathMessage) {
+      document.getElementById("story").innerText = deathMessage;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+
+      const restartButton = document.createElement("button");
+      restartButton.innerText = "Restart";
+      restartButton.onclick = () => {
+        currentStep = 1; // Restart from step 1
+        showStep(currentStep);
+      };
+      choicesDiv.appendChild(restartButton);
+    }
+  </script>
+</body>
+</html>
