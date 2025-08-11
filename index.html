@@ -49,9 +49,9 @@
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    // Your specific Firebase configuration from the console - NOW CORRECTLY USING YOUR API KEY!
+    // Your specific Firebase configuration from the console - NOW CORRECTLY USING YOUR LATEST API KEY!
     const firebaseConfig = {
-      apiKey: "c3feaedd5c9cb8ca4c873737bb760c055e56081b", // <--- THIS IS YOUR KEY!
+      apiKey: "AIzaSyB2-LigpIhiNXz_essYGW2LjUTSaVJhoPA", // <--- THIS IS YOUR LATEST KEY!
       authDomain: "cyoa-games-analytics.firebaseapp.com",
       projectId: "cyoa-games-analytics",
       storageBucket: "cyoa-games-analytics.firebasestorage.app",
@@ -106,6 +106,7 @@
         await firebaseReadyPromise;
 
         // Double-check readiness after the promise resolves, in case of auth failure
+        // (e.g., if authentication itself failed despite promise resolving due to other errors)
         if (!window.db || !window.userId) {
             console.error("Firebase is not ready for analytics. Database or user ID is missing after readiness check. Data will not be sent.");
             return;
