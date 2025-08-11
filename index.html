@@ -40,8 +40,8 @@
   <script type="module">
     // Import the functions needed from Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js"; // Core Firebase app
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; // Authentication
-    import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; // Firestore Database
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js"; // Authentication
+    import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js"; // Firestore Database
 
     // IMPORTANT: These variables are automatically provided by the Canvas environment for the dashboard.
     // For your game running locally, we'll use your provided firebaseConfig.
@@ -60,25 +60,29 @@
       measurementId: "G-RWBHWLX0TL" // This is for Google Analytics, but not directly used by our Firestore logging
     };
 
-    let app, db, auth, userId; // Declare global variables for Firebase instances
+    // Declare global variables attached to `window` for access from other scripts
+    window.app = null;
+    window.db = null;
+    window.auth = null;
+    window.userId = null;
 
     // Initialize Firebase app and services after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', async () => {
       // Initialize the Firebase app with your specific configuration
-      app = initializeApp(firebaseConfig);
+      window.app = initializeApp(firebaseConfig);
       // Get instances of Firestore and Authentication services
-      db = getFirestore(app);
-      auth = getAuth(app);
+      window.db = getFirestore(window.app);
+      window.auth = getAuth(window.app);
 
       try {
         // Authenticate the user. Use custom token if available (from Canvas), otherwise sign in anonymously.
         if (initialAuthToken) {
-          await signInWithCustomToken(auth, initialAuthToken);
+          await signInWithCustomToken(window.auth, initialAuthToken);
         } else {
-          await signInAnonymously(auth);
+          await signInAnonymously(window.auth);
         }
-        userId = auth.currentUser?.uid; // Store the authenticated user's ID
-        console.log("Firebase initialized and authenticated successfully. User ID:", userId);
+        window.userId = window.auth.currentUser?.uid; // Store the authenticated user's ID
+        console.log("Firebase initialized and authenticated successfully. User ID:", window.userId);
       } catch (error) {
         console.error("Firebase authentication failed during game setup:", error);
       }
@@ -90,17 +94,17 @@
     // Helper function to update Firestore documents for analytics
     async function updateAnalytics(gameId, dataToUpdate) {
         // Ensure Firestore and user are ready before attempting to write data
-        if (!db || !userId) {
+        if (!window.db || !window.userId) { // Check window.db and window.userId
             console.warn("Firestore not initialized or user not authenticated. Analytics data cannot be sent.");
             return;
         }
         // Reference to the specific game document in the public analytics collection
-        const docRef = doc(db, `artifacts/${appId}/public/data/gameAnalytics`, gameId);
+        const docRef = doc(window.db, `artifacts/${appId}/public/data/gameAnalytics`, gameId); // Use window.db
         try {
             // Use setDoc with { merge: true } to create the document if it doesn't exist,
             // or update it by merging new data without overwriting existing fields.
             await setDoc(docRef, dataToUpdate, { merge: true });
-            // console.log("Analytics data sent:", gameId, dataToUpdate); // Uncomment for detailed logging
+            console.log("Analytics data sent:", gameId, dataToUpdate); // Uncomment for detailed logging
         } catch (e) {
             console.error("Failed to send analytics data to Firestore:", e);
         }
@@ -388,13 +392,20 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       steps = storyData.steps;
-      // Log that the game has started
-      if (typeof window.logGameStarted === 'function') {
-        window.logGameStarted(GAME_ID);
-      } else {
-        console.warn("Analytics function logGameStarted not available. Ensure Firebase SDK is loaded.");
-      }
-      showStep(currentStep);
+      
+      const attemptLogGameStarted = () => {
+          // Check if the global analytics function and Firebase objects are available
+          if (typeof window.logGameStarted === 'function' && window.db && window.userId) {
+              window.logGameStarted(GAME_ID);
+              console.log("Game started logged successfully.");
+          } else {
+              // If not ready, retry after a short delay
+              setTimeout(attemptLogGameStarted, 100); 
+          }
+      };
+
+      attemptLogGameStarted(); // Start attempting to log game started
+      showStep(currentStep); // Show the first step immediately
     });
 
     function showStep(stepId) {
