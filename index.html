@@ -290,7 +290,6 @@
     let steps = [];
     let currentStep = 1;
 
-    // The script now loads the story data directly on DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {
       steps = storyData.steps;
       showStep(currentStep);
@@ -308,6 +307,7 @@
       const choicesDiv = document.getElementById("choices");
       choicesDiv.innerHTML = "";
 
+      // Randomize the order of choices
       const shuffledChoices = [...step.choices].sort(() => Math.random() - 0.5);
 
       shuffledChoices.forEach(choice => {
@@ -332,7 +332,8 @@
       const restartButton = document.createElement("button");
       restartButton.innerText = "Restart";
       restartButton.onclick = () => {
-        currentStep = 1; // Restart from step 1
+        // Game now restarts from step 4 when the player dies
+        currentStep = 4;
         showStep(currentStep);
       };
       choicesDiv.appendChild(restartButton);
