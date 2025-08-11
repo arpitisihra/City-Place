@@ -49,9 +49,9 @@
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    // Your specific Firebase configuration from the console
+    // Your specific Firebase configuration from the console - UPDATED WITH YOUR NEW API KEY!
     const firebaseConfig = {
-      apiKey: "AIzaSyBGBX2EcuMNlJeMD9sIDJvLTBJ21VfHr_4",
+      apiKey: "c3feaedd5c9cb8ca4c873737bb760c055e56081b", // <--- YOUR NEW API KEY IS HERE!
       authDomain: "cyoa-games-analytics.firebaseapp.com",
       projectId: "cyoa-games-analytics",
       storageBucket: "cyoa-games-analytics.firebasestorage.app",
@@ -65,6 +65,12 @@
     window.db = null;
     window.auth = null;
     window.userId = null;
+
+    // New: A promise that resolves when Firebase is fully initialized and authenticated
+    let firebaseReadyResolve;
+    const firebaseReadyPromise = new Promise(resolve => {
+      firebaseReadyResolve = resolve;
+    });
 
     // Initialize Firebase app and services after the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', async () => {
@@ -83,8 +89,11 @@
         }
         window.userId = window.auth.currentUser?.uid; // Store the authenticated user's ID
         console.log("Firebase initialized and authenticated successfully. User ID:", window.userId);
+        firebaseReadyResolve(); // Resolve the promise once ready!
       } catch (error) {
         console.error("Firebase authentication failed during game setup:", error);
+        // Do NOT resolve firebaseReadyPromise here if authentication fails,
+        // so analytics calls will continue to wait or fail gracefully.
       }
     });
 
@@ -93,11 +102,15 @@
 
     // Helper function to update Firestore documents for analytics
     async function updateAnalytics(gameId, dataToUpdate) {
-        // Ensure Firestore and user are ready before attempting to write data
-        if (!window.db || !window.userId) { // Check window.db and window.userId
-            console.warn("Firestore not initialized or user not authenticated. Analytics data cannot be sent.");
+        // Wait for Firebase to be fully initialized and authenticated before proceeding
+        await firebaseReadyPromise;
+
+        // Double-check readiness after the promise resolves, in case of auth failure
+        if (!window.db || !window.userId) {
+            console.error("Firebase is not ready for analytics. Database or user ID is missing after readiness check. Data will not be sent.");
             return;
         }
+
         // Reference to the specific game document in the public analytics collection
         const docRef = doc(window.db, `artifacts/${appId}/public/data/gameAnalytics`, gameId); // Use window.db
         try {
@@ -316,7 +329,8 @@
           "text": "You ascend Chandra Mahal. The halls twist unnaturally.",
           "choices": [
             { "text": "Mark your path with blood", "next_step": 23 },
-            { "text": "Leave no markings", "death": "You get lost in an endless loop and die after a few days." }
+            { "text": "Leave no markings", "death": "You get lost in an endless loop and die after a few days."
+            }
           ]
         },
         {
@@ -393,18 +407,13 @@
     document.addEventListener('DOMContentLoaded', () => {
       steps = storyData.steps;
       
-      const attemptLogGameStarted = () => {
-          // Check if the global analytics function and Firebase objects are available
-          if (typeof window.logGameStarted === 'function' && window.db && window.userId) {
-              window.logGameStarted(GAME_ID);
-              console.log("Game started logged successfully.");
-          } else {
-              // If not ready, retry after a short delay
-              setTimeout(attemptLogGameStarted, 100); 
-          }
-      };
-
-      attemptLogGameStarted(); // Start attempting to log game started
+      // Attempt to log game started. This will now wait for Firebase to be ready internally.
+      if (typeof window.logGameStarted === 'function') {
+        window.logGameStarted(GAME_ID);
+        console.log("Attempting to log game started...");
+      } else {
+        console.warn("Analytics function logGameStarted not available. Firebase SDK might not be loaded correctly.");
+      }
       showStep(currentStep); // Show the first step immediately
     });
 
